@@ -1,8 +1,10 @@
 # CLS package repository index
-# generated 1795404428
+# generated 1795405831
 
+git = { name = "git", ver = "2.47.3", sha = "53816ed6777d09ccbd5b2dab4ba8cd1512ae06ebbf538b475d7ad8132be85b23", file = "git.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/git.clp" }
 htop = { name = "htop", ver = "3.3.0", sha = "1d0dd839f1112cbb122b38bfbc35852d4b48924a8aa9dc1028c029efa29826ac", file = "htop.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/htop.clp" }
 vim = { name = "vim", ver = "9.1.1000", sha = "536d60090ef08e1f312375063caa78f7d96d2e921727951d1ffd1b71680d9560", file = "vim.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/vim.clp" }
+btop = { name = "btop", ver = "1.4.0", sha = "58fa6beeb432f0a7d106004e744ca71e28742565db6951983f65ecf65c08a718", file = "btop.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/btop.clp" }
 neofetch = { name = "neofetch", ver = "7.1.0", sha = "42150d01bf01d46eea47de3cdafade8799211e197008bc9e0e9dbb3ca708500b", file = "neofetch.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/neofetch.clp" }
 python3 = { name = "python3", ver = "3.13.1", sha = "259d1e812c47e146aef3c762efacc9db0725491e3f5a884faf1a26074f7aa0dd", file = "python3.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/python3.clp" }
 openssh = { name = "openssh", ver = "9.9p1", sha = "a839d63e0134d1ed09b14fb8d7c9c788c9514799795e3847c0e78c3d68940b17", file = "openssh.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/openssh.clp" }
