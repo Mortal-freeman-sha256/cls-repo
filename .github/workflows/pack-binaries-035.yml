@@ -7,72 +7,49 @@ jobs:
   pack-all:
     runs-on: ubuntu-latest
     steps:
-      - name: Install zstd & curl
-        run: sudo apt-get update && sudo apt-get install -y curl zstd jq python3
+      - name: Download static xbps-install
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl zstd xz-utils
+          H="repo-default.voidlinux.org"
+          curl -fL "https://$H/static/xbps-static-latest.x86_64-musl.tar.xz" -o xbps.tar.xz
+          mkdir -p xbps_bin && tar -xf xbps.tar.xz -C xbps_bin
 
-      - name: Fetch & convert Void Linux packages (glibc + musl) to .clp
+      - name: Fetch full dependency trees (glibc + musl) and pack .clp
         run: |
           mkdir -p out work
-          python3 - << 'PY'
-          import json, os, re, subprocess, tarfile, urllib.request
+          XBPS="$PWD/xbps_bin/usr/bin/xbps-install.static"
+          H="repo-default.voidlinux.org"
 
-          MIRROR_GNU = "https://voidlinux.org"
-          MIRROR_MUSL = "https://voidlinux.org/musl"
+          pack_group() {
+            local NAME="$1"
+            shift
+            echo "=== Packing $NAME.clp ==="
+            mkdir -p "work/$NAME/$NAME/data" "work/$NAME/$NAME/gnubuild" "work/$NAME/$NAME/muslbuild"
 
-          GROUPS = {
-              "tmux": ["tmux", "libevent"],
-              "flatpak": ["flatpak", "bubblewrap", "ostree", "xdg-dbus-proxy", "fuse3", "appstream", "libarchive", "gpgme"],
-              "firefox": ["firefox", "gtk+3", "nss", "nspr", "libwebp", "libvpx", "dav1d", "ffmpeg", "alsa-lib", "dbus-glib"],
-              "sway": ["sway", "wlroots0.18", "wayland", "wayland-protocols", "seatd", "foot", "waybar", "fuzzel", "grim", "slurp", "libinput", "libxkbcommon", "mesa-dri"],
-              "lxde": ["lxde", "lxde-common", "openbox", "pcmanfm", "lxpanel", "lxsession", "lxterminal", "lxappearance", "lxdm", "xorg-minimal", "xf86-video-amdgpu", "xf86-video-intel", "xf86-input-libinput", "dejavu-fonts-ttf", "wpa_supplicant", "dhcpcd"]
+            # GNU/glibc
+            mkdir -p "work/$NAME/gnu_root/var/db/xbps/keys"
+            cp xbps_bin/var/db/xbps/keys/* "work/$NAME/gnu_root/var/db/xbps/keys/"
+            XBPS_ARCH=x86_64 "$XBPS" -S -y -r "work/$NAME/gnu_root" -R "https://$H/current" "$@"
+            cp -a "work/$NAME/gnu_root/"* "work/$NAME/$NAME/gnubuild/"
+            rm -rf "work/$NAME/$NAME/gnubuild/var/db/xbps" "work/$NAME/$NAME/gnubuild/var/cache/xbps"
+
+            # musl
+            mkdir -p "work/$NAME/musl_root/var/db/xbps/keys"
+            cp xbps_bin/var/db/xbps/keys/* "work/$NAME/musl_root/var/db/xbps/keys/"
+            XBPS_ARCH=x86_64-musl "$XBPS" -S -y -r "work/$NAME/musl_root" -R "https://$H/current/musl" "$@"
+            cp -a "work/$NAME/musl_root/"* "work/$NAME/$NAME/muslbuild/"
+            rm -rf "work/$NAME/$NAME/muslbuild/var/db/xbps" "work/$NAME/$NAME/muslbuild/var/cache/xbps"
+
+            printf '[package]\nname="%s"\nver="0.3.5"\narch=["x86_64"]\n[flavors]\ngnu=true\nmusl=true\n' "$NAME" > "work/$NAME/$NAME/data/data.toml"
+            tar -C "work/$NAME" -cf - "$NAME" | xz -T0 -6 > "out/$NAME.clp"
+            rm -rf "work/$NAME"
           }
 
-          def get_index(base_url, workdir):
-              os.makedirs(workdir, exist_ok=True)
-              idx_file = os.path.join(workdir, "index.xbps")
-              urllib.request.urlretrieve(f"{base_url}/{"x86_64-musl-repodata" if "musl" in base_url else "x86_64-repodata"}", idx_file)
-              subprocess.run(["tar", "--zstd", "-xf", idx_file, "-C", workdir], check=True)
-              plist = open(os.path.join(workdir, "index.plist"), "rb").read().decode("utf-8", "ignore")
-              pkgs = {}
-              for m in re.finditer(r"<key>([^<]+)</key>\s*<dict>(.*?)</dict>", plist, re.S):
-                  name, body = m.group(1), m.group(2)
-                  vm = re.search(r"<key>pkgver</key>\s*<string>([^<]+)</string>", body)
-                  if vm:
-                      pkgs[name] = vm.group(1)
-              return pkgs
-
-          gnu_idx = get_index(MIRROR_GNU, "work/idx_gnu")
-          musl_idx = get_index(MIRROR_MUSL, "work/idx_musl")
-
-          for pkg_name, deps in GROUPS.items():
-              print(f"=== Packing {pkg_name}.clp ===")
-              base_dir = f"work/pkg_{pkg_name}/{pkg_name}"
-              os.makedirs(f"{base_dir}/data", exist_ok=True)
-              os.makedirs(f"{base_dir}/gnubuild", exist_ok=True)
-              os.makedirs(f"{base_dir}/muslbuild", exist_ok=True)
-
-              for flavor, base_url, idx, sub in [
-                  ("gnu", MIRROR_GNU, gnu_idx, "gnubuild"),
-                  ("musl", MIRROR_MUSL, musl_idx, "muslbuild")
-              ]:
-                  for d in deps:
-                      pv = idx.get(d)
-                      if not pv:
-                          continue
-                      arch_suffix = "x86_64-musl" if flavor == "musl" else "x86_64"
-                      url = f"{base_url}/{pv}.{arch_suffix}.xbps"
-                      xbps = f"work/{pv}.{flavor}.xbps"
-                      try:
-                          urllib.request.urlretrieve(url, xbps)
-                          subprocess.run(["tar", "--zstd", "-xf", xbps, "-C", f"{base_dir}/{sub}", "--exclude=./props.plist", "--exclude=./files.plist", "--exclude=./INSTALL", "--exclude=./REMOVE"], check=True)
-                      except Exception as e:
-                          print(f"  skip {d} ({flavor}): {e}")
-
-              with open(f"{base_dir}/data/data.toml", "w") as f:
-                  f.write(f'[package]\nname="{pkg_name}"\nver="0.3.5"\narch=["x86_64"]\n[flavors]\ngnu=true\nmusl=true\n')
-
-              subprocess.run(["tar", "-C", f"work/pkg_{pkg_name}", "-cJf", f"out/{pkg_name}.clp", pkg_name], check=True)
-          PY
+          pack_group "tmux" tmux
+          pack_group "flatpak" flatpak xdg-desktop-portal-gtk
+          pack_group "firefox" firefox
+          pack_group "sway" sway seatd foot waybar fuzzel grim slurp mesa-dri
+          pack_group "lxde" lxde xorg-minimal xf86-video-amdgpu xf86-video-intel xf86-input-libinput dejavu-fonts-ttf wpa_supplicant dhcpcd
 
       - name: Upload all .clp packages to repo-x86_64
         uses: softprops/action-gh-release@v2
