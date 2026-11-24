@@ -13,7 +13,7 @@ VERSIONS = {
     "tmux": "3.5a", "flatpak": "1.15.10", "firefox": "160.0.1"
 }
 
-raw = subprocess.check_output(["gh", "release", "view", TAG, "-R", REPO, "--json", "assets"])
+raw = subprocess.check_output(["gh", "api", f"repos/{REPO}/releases/tags/{TAG}"])
 assets = json.loads(raw)["assets"]
 
 os.makedirs("x86_64", exist_ok=True)
@@ -25,10 +25,10 @@ for a in assets:
         continue
     name = fn[:-4]
     ver = VERSIONS.get(name, "0.3.5")
-    url = a["url"]
-    sha = a["digest"].removeprefix("sha256:")
+    url = a["browser_download_url"]
+    sha = (a.get("digest") or "").removeprefix("sha256:")
     lines.append(f'{name} = {{ name = "{name}", ver = "{ver}", sha = "{sha}", file = "{fn}", url = "{url}" }}')
 
 with open(OUT_FILE, "w") as f:
     f.write("\n".join(lines) + "\n")
-print(f"Updated {OUT_FILE} with {len(lines)-3} packages in 0.5s!")
+print(f"Updated {OUT_FILE} with {len(lines)-3} packages!")
