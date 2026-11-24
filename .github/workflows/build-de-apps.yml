@@ -17,9 +17,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p chroot out
-          gh release download repo-x86_64 -p "base-system.clp"
-          tar -xf base-system.clp
-          cp -a base-system/gnubuild/* chroot/
+          gh release download repo-x86_64 -p "base-gnu.clp"
+          tar -xf base-gnu.clp
+          cp -a base-gnu/gnubuild/* chroot/
           cp /etc/resolv.conf chroot/etc/
           mkdir -p chroot/etc/ssl/certs
           cp /etc/ssl/certs/ca-certificates.crt chroot/etc/ssl/certs/
