@@ -1,15 +1,15 @@
 # CLS package repository index
-# generated 1795471750
+# generated 1795479029
 
-git = { name = "git", ver = "2.47.3", sha = "53816ed6777d09ccbd5b2dab4ba8cd1512ae06ebbf538b475d7ad8132be85b23", file = "git.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/git.clp" }
-htop = { name = "htop", ver = "3.3.0", sha = "1d0dd839f1112cbb122b38bfbc35852d4b48924a8aa9dc1028c029efa29826ac", file = "htop.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/htop.clp" }
-vim = { name = "vim", ver = "9.1.1000", sha = "536d60090ef08e1f312375063caa78f7d96d2e921727951d1ffd1b71680d9560", file = "vim.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/vim.clp" }
-btop = { name = "btop", ver = "1.4.0", sha = "58fa6beeb432f0a7d106004e744ca71e28742565db6951983f65ecf65c08a718", file = "btop.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/btop.clp" }
-neofetch = { name = "neofetch", ver = "7.1.0", sha = "42150d01bf01d46eea47de3cdafade8799211e197008bc9e0e9dbb3ca708500b", file = "neofetch.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/neofetch.clp" }
-python3 = { name = "python3", ver = "3.13.1", sha = "259d1e812c47e146aef3c762efacc9db0725491e3f5a884faf1a26074f7aa0dd", file = "python3.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/python3.clp" }
-openssh = { name = "openssh", ver = "9.9p1", sha = "a839d63e0134d1ed09b14fb8d7c9c788c9514799795e3847c0e78c3d68940b17", file = "openssh.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/openssh.clp" }
-lua = { name = "lua", ver = "5.4.7", sha = "d7c944cf2fd226f740508deecbf1276aa03259c32e20174484df292891d13f80", file = "lua.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/lua.clp" }
-bash = { name = "bash", ver = "5.2.37", sha = "d90d39084791bbc519ddf7c84c3461d3130fd2fa88e2de212861cbcb41974147", file = "bash.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/bash.clp" }
-sysutils = { name = "sysutils", ver = "0.3.0", sha = "44d4822dc83f70a3ee75d2f932eb8067d07b1644a014eddd468b45ed06d2094e", file = "sysutils.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/sysutils.clp" }
-ntfs-3g = { name = "ntfs-3g", ver = "2022.10.3", sha = "b527c0433149ef1b2db6c7402da4a88c7a156f9f8035958615963d6b305b95a7", file = "ntfs-3g.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/ntfs-3g.clp" }
-fastfetch = { name = "fastfetch", ver = "2.34.1", sha = "d2eb1ad54c49171dcf633e85088e855c8f88d1c06ef700819a886017c2d76a37", file = "fastfetch.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/fastfetch.clp" }
+git = { name = "git", ver = "2.47.3", sha = "4db4294ba54c4c0db9eb9c2fa1a0d50dbf28cc14373a72a738685a625f15b348", file = "git.clp", url = "https://://github.com/git.clp" }
+htop = { name = "htop", ver = "3.3.0", sha = "0680c8448a85664484dd890e22eddd9b6a591140a9ee04f94dd49a156d4c06ae", file = "htop.clp", url = "https://://github.com/htop.clp" }
+vim = { name = "vim", ver = "9.1.1000", sha = "44107e37391ef14e4f98e030191f6bea96bb3c648fcaa88d95fde997501cfd4d", file = "vim.clp", url = "https://://github.com/vim.clp" }
+btop = { name = "btop", ver = "1.4.0", sha = "58fa6beeb432f0a7d106004e744ca71e28742565db6951983f65ecf65c08a718", file = "btop.clp", url = "https://://github.com/btop.clp" }
+neofetch = { name = "neofetch", ver = "7.1.0", sha = "cedf1f7c430fa6f19303a013908538d906f3a14fe3aa62939af7cdd3ff87d585", file = "neofetch.clp", url = "https://://github.com/neofetch.clp" }
+python3 = { name = "python3", ver = "3.13.1", sha = "eba6d2579ed7c6e3bda9ea9bbb9fa31bf0f7d422fec4134c1d14ab775665689b", file = "python3.clp", url = "https://://github.com/python3.clp" }
+openssh = { name = "openssh", ver = "9.9p1", sha = "54da9c30811d6b5e81de68a1ecf4efd03afd567f1825438766359ee71c1b7978", file = "openssh.clp", url = "https://://github.com/openssh.clp" }
+lua = { name = "lua", ver = "5.4.7", sha = "b3518ebeae28d2b84d2b696317bf3273c388c43ca8328fdf286c24656f8be36f", file = "lua.clp", url = "https://://github.com/lua.clp" }
+bash = { name = "bash", ver = "5.2.37", sha = "8e9309ce3f3c246b46c7e0cdcadb8ce8323ad5703ab320b001fb9f4965edc60b", file = "bash.clp", url = "https://://github.com/bash.clp" }
+sysutils = { name = "sysutils", ver = "0.3.0", sha = "44d4822dc83f70a3ee75d2f932eb8067d07b1644a014eddd468b45ed06d2094e", file = "sysutils.clp", url = "https://://github.com/sysutils.clp" }
+ntfs-3g = { name = "ntfs-3g", ver = "2022.10.3", sha = "3e58b34220b94834694e9b0645063bd128307e01496f5a3426627ed7c592dd67", file = "ntfs-3g.clp", url = "https://://github.com/ntfs-3g.clp" }
+fastfetch = { name = "fastfetch", ver = "2.34.1", sha = "271d20739e63020f1929122a5a581889a0fed3a122ce6daf06570841908aa9b6", file = "fastfetch.clp", url = "https://://github.com/fastfetch.clp" }
