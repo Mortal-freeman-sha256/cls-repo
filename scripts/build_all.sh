@@ -34,6 +34,7 @@ GN="download.gnome.org/sources"
 build_base_libs() {
   local D="$1"
   cd /src && curl -fL "https://github.com" -o nj.tar.gz && tar -xf nj.tar.gz && cd ninja-1.12.1 && python3 configure.py --bootstrap && cp ninja /usr/bin/ && cd /src && rm -rf ninja-1.12.1 nj.tar.gz
+  cd /src && curl -fL "https://github.com" -o nj.tar.gz && tar -xf nj.tar.gz && cd ninja-1.12.1 && python3 configure.py --bootstrap && cp ninja /usr/bin/ && cd /src && rm -rf ninja-1.12.1 nj.tar.gz
   auto_gz "https://$GH/libffi/libffi/releases/download/v3.4.6/libffi-3.4.6.tar.gz" "libffi-3.4.6" "" "$D"
   auto_b  "https://$GH/libexpat/libexpat/releases/download/R_2_6_4/expat-2.6.4.tar.xz" "expat-2.6.4" "--without-docbook" "$D"
   auto_b  "https://$GH/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.bz2" "pcre2-10.44" "--enable-unicode --enable-jit" "$D"
