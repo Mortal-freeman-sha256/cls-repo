@@ -1,0 +1,130 @@
+name: Build CLS 0.3.5 Kernel (6.12.119 LTS)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses-dev bison flex libssl-dev libelf-dev bc cpio kmod xz-utils zstd curl git
+
+      - name: Download Linux 6.12.119 & Firmware
+        run: |
+          K_HOST="cdn.kernel.org"
+          K_PATH="pub/linux/kernel/v6.x/linux-6.12.119.tar.xz"
+          curl -fsSL "https://$K_HOST/$K_PATH" -o linux.tar.xz
+          tar -xf linux.tar.xz
+          mv linux-6.12.119 linux
+
+          FW_HOST="git.kernel.org"
+          FW_PATH="pub/scm/linux/kernel/git/firmware/linux-firmware.git"
+          git clone --depth 1 "https://$FW_HOST/$FW_PATH" firmware_repo
+
+      - name: Configure Kernel (M715s + Fujitsu T734 + XFS/Btrfs + ZRAM)
+        working-directory: linux
+        run: |
+          make x86_64_defconfig
+          cat >> .config << 'EOF'
+          # Графика (M715s AMD R7 + Fujitsu T734 Intel HD 4600)
+          CONFIG_DRM=y
+          CONFIG_DRM_FBDEV_EMULATION=y
+          CONFIG_FB_EFI=y
+          CONFIG_FB_VESA=y
+          CONFIG_DRM_AMDGPU=y
+          CONFIG_DRM_AMDGPU_SI=y
+          CONFIG_DRM_AMDGPU_CIK=y
+          CONFIG_DRM_AMD_DC=y
+          CONFIG_DRM_RADEON=m
+          CONFIG_DRM_I915=y
+          CONFIG_BACKLIGHT_CLASS_DEVICE=y
+
+          # Сеть и Wi-Fi (Realtek + Intel Ethernet + Intel Wi-Fi 7260)
+          CONFIG_R8169=y
+          CONFIG_E1000E=y
+          CONFIG_CFG80211=m
+          CONFIG_MAC80211=m
+          CONFIG_IWLWIFI=m
+          CONFIG_IWLMVM=m
+          CONFIG_RTW88=m
+          CONFIG_RTW88_8821CE=m
+          CONFIG_RTW88_8822CE=m
+
+          # Ноутбук Fujitsu T734 (тачскрин, стилус Wacom, батарея, ACPI)
+          CONFIG_INPUT_EVDEV=y
+          CONFIG_HID_WACOM=m
+          CONFIG_HID_MULTITOUCH=m
+          CONFIG_FUJITSU_LAPTOP=m
+          CONFIG_FUJITSU_TABLET=m
+          CONFIG_ACPI_BATTERY=y
+          CONFIG_ACPI_AC=y
+          CONFIG_X86_INTEL_PSTATE=y
+          CONFIG_SND_HDA_INTEL=y
+          CONFIG_SND_HDA_CODEC_REALTEK=y
+          CONFIG_SND_HDA_CODEC_HDMI=y
+          CONFIG_BT=m
+          CONFIG_BT_HCIBTUSB=m
+          CONFIG_BT_INTEL=m
+
+          # Файловые системы и ZRAM ZSTD
+          CONFIG_EXT4_FS=y
+          CONFIG_EXT4_USE_FOR_EXT2=y
+          CONFIG_XFS_FS=y
+          CONFIG_BTRFS_FS=y
+          CONFIG_VFAT_FS=y
+          CONFIG_ZRAM=y
+          CONFIG_ZRAM_BACKEND_ZSTD=y
+          CONFIG_ZSTD_COMPRESS=y
+          CONFIG_ZSTD_DECOMPRESS=y
+          CONFIG_CRYPTO_ZSTD=y
+          CONFIG_BLK_DEV_NVME=y
+          EOF
+          make olddefconfig
+
+      - name: Compile Kernel and Modules
+        working-directory: linux
+        run: |
+          make -j$(nproc) bzImage modules
+          mkdir -p ../pkg_root/boot ../pkg_root/lib/firmware
+          cp arch/x86/boot/bzImage ../pkg_root/boot/vmlinuz-6.12.119
+          make INSTALL_MOD_PATH=../pkg_root modules_install
+          rm -f ../pkg_root/lib/modules/6.12.119/build ../pkg_root/lib/modules/6.12.119/source
+
+          # Копируем только нужные прошивки (экономим ~450 МБ)
+          cp -r ../firmware_repo/amdgpu ../pkg_root/lib/firmware/
+          cp -r ../firmware_repo/radeon ../pkg_root/lib/firmware/
+          cp -r ../firmware_repo/rtl_nic ../pkg_root/lib/firmware/
+          cp ../firmware_repo/iwlwifi-7260-* ../pkg_root/lib/firmware/
+          mkdir -p ../pkg_root/lib/firmware/intel
+          cp ../firmware_repo/intel/ibt-* ../pkg_root/lib/firmware/intel/
+
+      - name: Package kernel-035.clp and NetInstall artifacts
+        run: |
+          mkdir -p out clp_build/kernel/data clp_build/kernel/muslbuild clp_build/kernel/gnubuild
+          cp -a pkg_root/* clp_build/kernel/muslbuild/
+          cp -a pkg_root/* clp_build/kernel/gnubuild/
+          cat > clp_build/kernel/data/data.toml << 'EOF'
+          [package]
+          name="kernel"
+          ver="6.12.119"
+          arch=["x86_64"]
+          desc="Linux Kernel 6.12.119 LTS (M715s + Fujitsu T734)"
+          [flavors]
+          gnu=true
+          musl=true
+          EOF
+          tar -C clp_build -cJf out/kernel.clp kernel
+          cp pkg_root/boot/vmlinuz-6.12.119 out/vmlinuz
+          tar -C pkg_root -cJf out/modules-fw.tar.xz lib
+
+      - name: Upload to GitHub Release (kernel-035)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: kernel-035
+          files: out/*
