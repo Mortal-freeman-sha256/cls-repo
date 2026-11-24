@@ -100,7 +100,7 @@ jobs:
           cp -r ../firmware_repo/amdgpu ../pkg_root/lib/firmware/
           cp -r ../firmware_repo/radeon ../pkg_root/lib/firmware/
           cp -r ../firmware_repo/rtl_nic ../pkg_root/lib/firmware/
-          cp ../firmware_repo/iwlwifi-7260-* ../pkg_root/lib/firmware/
+          find ../firmware_repo -name "iwlwifi-7260-*" -exec cp {} ../pkg_root/lib/firmware/ \;
           mkdir -p ../pkg_root/lib/firmware/intel
           cp ../firmware_repo/intel/ibt-* ../pkg_root/lib/firmware/intel/
 
