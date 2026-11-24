@@ -30,7 +30,7 @@ jobs:
           def get_index(base_url, workdir):
               os.makedirs(workdir, exist_ok=True)
               idx_file = os.path.join(workdir, "index.xbps")
-              urllib.request.urlretrieve(f"{base_url}/x86_64-repodata", idx_file)
+              urllib.request.urlretrieve(f"{base_url}/{"x86_64-musl-repodata" if "musl" in base_url else "x86_64-repodata"}", idx_file)
               subprocess.run(["tar", "--zstd", "-xf", idx_file, "-C", workdir], check=True)
               plist = open(os.path.join(workdir, "index.plist"), "rb").read().decode("utf-8", "ignore")
               pkgs = {}
