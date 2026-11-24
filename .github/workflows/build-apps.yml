@@ -39,7 +39,7 @@ jobs:
           done
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: repo-035
+          tag_name: repo-x86_64
           files: out/*.clp
 
   build-firefox:
@@ -62,5 +62,5 @@ jobs:
           tar -C pkg -cJf out/firefox.clp firefox
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: repo-035
+          tag_name: repo-x86_64
           files: out/firefox.clp

@@ -1,0 +1,43 @@
+name: Build CLS 0.3.5 DE & Apps (LXDE, Sway, Flatpak, Tmux)
+on: [workflow_dispatch]
+permissions:
+  contents: write
+
+jobs:
+  build-chroot-pkgs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [lxde, sway, apps]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run chroot build (${{ matrix.target }})
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p chroot out
+          gh release download repo-x86_64 -p "base-system.clp"
+          tar -xf base-system.clp
+          cp -a base-system/gnubuild/* chroot/
+          cp /etc/resolv.conf chroot/etc/
+          mkdir -p chroot/etc/ssl/certs
+          cp /etc/ssl/certs/ca-certificates.crt chroot/etc/ssl/certs/
+          ln -sf /etc/ssl/certs/ca-certificates.crt chroot/etc/ssl/cert.pem
+          cp scripts/build_all.sh chroot/ && chmod +x chroot/build_all.sh
+          sudo mount --bind /proc chroot/proc && sudo mount --bind /sys chroot/sys && sudo mount --bind /dev chroot/dev
+          sudo chroot chroot /build_all.sh ${{ matrix.target }}
+          sudo umount -lf chroot/proc chroot/sys chroot/dev || true
+          for d in chroot/dest_*; do
+            [ -z "$(ls -A "$d" 2>/dev/null)" ] && continue
+            n=${d##*dest_}
+            mkdir -p pkg/$n/data pkg/$n/gnubuild
+            sudo cp -a "$d"/* pkg/$n/gnubuild/
+            find pkg/$n -type f \( -name "*.so*" -o -perm -111 \) -exec strip --strip-unneeded {} + 2>/dev/null || true
+            printf '[package]\nname="%s"\nver="0.3.5"\narch=["x86_64"]\n[flavors]\ngnu=true\n' "$n" > pkg/$n/data/data.toml
+            tar -C pkg -cJf out/$n.clp $n
+          done
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: repo-x86_64
+          files: out/*.clp
