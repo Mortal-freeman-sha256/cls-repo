@@ -17,10 +17,14 @@ jobs:
           mkdir -p chroot out
           GH="://github.com"
           curl -fL "https://$GH/base-gnu.clp" -o base.clp && tar -xf base.clp
-          cp -a base-system/gnubuild/* chroot/ && cp /etc/resolv.conf chroot/etc/
+          cp -a base-system/gnubuild/* chroot/
+          cp /etc/resolv.conf chroot/etc/
+          mkdir -p chroot/etc/ssl/certs
+          cp /etc/ssl/certs/ca-certificates.crt chroot/etc/ssl/certs/
+          ln -sf /etc/ssl/certs/ca-certificates.crt chroot/etc/ssl/cert.pem
           cp scripts/build_all.sh chroot/ && chmod +x chroot/build_all.sh
           sudo mount --bind /proc chroot/proc && sudo mount --bind /sys chroot/sys && sudo mount --bind /dev chroot/dev
-          sudo chroot chroot /build_all.sh ${{ matrix.target }} || true
+          sudo chroot chroot /build_all.sh ${{ matrix.target }}
           sudo umount -lf chroot/proc chroot/sys chroot/dev || true
           for d in chroot/dest_*; do
             [ -z "$(ls -A "$d" 2>/dev/null)" ] && continue
@@ -39,13 +43,17 @@ jobs:
   build-firefox:
     runs-on: ubuntu-latest
     steps:
-      - name: Compile Firefox ESR
+      - name: Compile Firefox ESR (with Python 3.11 via uv)
         run: |
           sudo apt-get update && sudo apt-get install -y build-essential clang llvm lld rustc cargo nodejs npm yasm nasm libgtk-3-dev libdbus-glib-1-dev libxt-dev libpulse-dev libasound2-dev libx11-xcb-dev libdrm-dev libgbm-dev libwayland-dev curl xz-utils zstd
+          curl -LsSf https://astral.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv python install 3.11
+          PY311=$(uv python find 3.11)
           MH="archive.mozilla.org/pub/firefox/releases/128.5.0esr/source"
           curl -fL "https://$MH/firefox-128.5.0esr.source.tar.xz" -o ff.tar.xz && tar -xf ff.tar.xz && cd firefox-128.5.0
           printf 'ac_add_options --prefix=/usr\nac_add_options --enable-application=browser\nac_add_options --enable-release\nac_add_options --disable-debug\nac_add_options --disable-tests\nac_add_options --disable-crashreporter\nac_add_options --disable-updater\nac_add_options --enable-default-toolkit=cairo-gtk3-wayland\nac_add_options --without-wasm-sandboxed-libraries\n' > mozconfig
-          ./mach build && DESTDIR=$PWD/../ff_dest ./mach install && cd ..
+          $PY311 ./mach build && DESTDIR=$PWD/../ff_dest $PY311 ./mach install && cd ..
           mkdir -p pkg/firefox/data pkg/firefox/gnubuild out && cp -a ff_dest/* pkg/firefox/gnubuild/
           find pkg/firefox -type f \( -name "*.so*" -o -perm -111 \) -exec strip --strip-unneeded {} + 2>/dev/null || true
           printf '[package]\nname="firefox"\nver="128.5.0esr"\narch=["x86_64"]\n[flavors]\ngnu=true\n' > pkg/firefox/data/data.toml
