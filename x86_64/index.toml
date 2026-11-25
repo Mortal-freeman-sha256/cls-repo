@@ -1,7 +1,8 @@
 # CLS package repository index
-# generated 1795558993
+# generated 1795569970
 
 base-gnu = { name = "base-gnu", ver = "0.3.5", sha = "5cff367d98d99b3fc131828250ec89d71a311fafb868ddb9ae22e30a9a75434a", file = "base-gnu.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/base-gnu.clp" }
+base-musl = { name = "base-musl", ver = "0.3.5", sha = "909ea63c904c681d09349c2c794af7528e4bf2d6f67554140a61189ccc8ce179", file = "base-musl.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/base-musl.clp" }
 bash = { name = "bash", ver = "5.2.37", sha = "8e9309ce3f3c246b46c7e0cdcadb8ce8323ad5703ab320b001fb9f4965edc60b", file = "bash.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/bash.clp" }
 btop = { name = "btop", ver = "1.4.0", sha = "58fa6beeb432f0a7d106004e744ca71e28742565db6951983f65ecf65c08a718", file = "btop.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/btop.clp" }
 fastfetch = { name = "fastfetch", ver = "2.34.1", sha = "271d20739e63020f1929122a5a581889a0fed3a122ce6daf06570841908aa9b6", file = "fastfetch.clp", url = "https://github.com/Mortal-freeman-sha256/cls-repo/releases/download/repo-x86_64/fastfetch.clp" }
